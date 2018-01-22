@@ -1,0 +1,12 @@
+#formButton {
+    height:100%;
+    width: 100%;
+    display: flex;  /* make the row a flex container */
+    align-items: center;
+    text-align: center;
+}
+
+.form-control {
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+}
