@@ -1,119 +1,183 @@
 import React, { Component } from 'react';
-import { Button, ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
-import { OrdinalFrame } from 'semiotic';
-import Tokenizer from 'tokenize-text';
+import { Panel, Table } from 'react-bootstrap';
+import { Bar, BarChart, Brush, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 import './WordCounter.css';
 
 class WordComparer extends Component {
     constructor(props) {
         super(props);
-		this.compareData = 
-
-		this.state = {
-			textInput: '',
-            hasChanged: false,
-            wordData: [{word: '', count: 0, idx: 0}]
-		};
+        var state = this.processData.bind(this)(props);
+        state['sort'] = "ratio";
+        state['intersectingWordList'] = this.getSortedIntersectingWordData(state.dataIntersection, state.sort);
+        this.state = state;
 	}
 
-    handleTextChange(e) {
-        this.setState(
-            {
-                textInput: e.target.value,
-                hasChanged: true
+    processData(props) {
+        var data1OnlyWords = [];
+        var data2OnlyWords = [];
+        var dataIntersection = {};
+
+        const setData1 = new Set(props.data1.map(datum => datum.word)); 
+        const setData2 = new Set(props.data2.map(datum => datum.word));
+        var datum, data_idx, i;
+
+        for (data_idx in props.data1) {
+            datum = props.data1[data_idx];
+            if (setData2.has(datum['word'])) {
+                dataIntersection[datum['word']] = {
+                    'word': datum['word'],
+                    'data1Count': datum['count'] 
+                };
+            } else {
+                data1OnlyWords.push({
+                    'word': datum['word'],
+                    'count': datum['count']
+                });
             }
+        }
+
+        for (data_idx in props.data2) {
+            datum = props.data2[data_idx];
+            if (setData1.has(datum['word'])) {
+                dataIntersection[datum['word']]['data2Count'] = datum['count'];
+            } else {
+                data2OnlyWords.push({
+                    'word': datum['word'],
+                    'count': datum['count']
+                });
+            }
+        }
+
+        // Clean up data1
+        data1OnlyWords.sort(function(d1, d2) {
+            return d2.count - d1.count;
+        });
+        for (i = 0; i < data1OnlyWords.length; ++i) {
+            data1OnlyWords[i]['idx'] = i;
+        }
+
+        // Clean up data2
+        data2OnlyWords.sort(function(d1, d2) {
+            return d2.count - d1.count;
+        });
+        for (i = 0; i < data2OnlyWords.length; ++i) {
+            data2OnlyWords[i]['idx'] = i;
+        }
+
+        return {
+            data1OnlyWords: data1OnlyWords,
+            data2OnlyWords: data2OnlyWords,
+            dataIntersection: dataIntersection
+        };
+
+    }
+
+    componentWillReceiveProps(newProps) {
+        var state = this.processData.bind(this)(newProps);
+        state.intersectingWordList = this.getSortedIntersectingWordData(
+                state.dataIntersection,
+                state.sortType);
+        this.setState(state);
+    }
+
+    getSortedIntersectingWordData(dataIntersection, sortType) {
+        var intersectingWordData = []
+        for (var ty in dataIntersection) {
+            intersectingWordData.push(dataIntersection[ty]);
+        }
+        console.log(intersectingWordData);
+        if (sortType === "alphabetical") {
+            intersectingWordData.sort(function(d1, d2) {
+                if (d1.word < d2.word) {
+                    return -1;
+                } else if (d1.word > d2.word) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        } else {
+            intersectingWordData.sort(function(d1, d2) {
+                return (d2.data1Count / d2.data2Count) - (d1.data1Count / d1.data2Count);
+            });
+        }
+        return intersectingWordData;
+    }
+
+    renderWordTable(wordList, color) {
+        return (
+            <Table striped bordered condensed hover responsive>
+                <thead>
+                    <tr bgcolor={color}>
+                        <th>#</th>
+                        <th>Word</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {wordList.map(function (datum) {
+                        return (
+                            <tr key={datum.word + "-item"}>
+                                <td>{datum.idx + 1}</td>
+                                <td>{datum.word}</td>
+                                <td>{datum.count}</td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </Table>
         );
     }
 
-    handleSubmitText(e) {
-        // this.props.handleTextCallback(this.state.textInput);
-        var inputStr = this.state.textInput;
-        if (!this.props.useCaps) {
-            inputStr = inputStr.toLowerCase();
+    renderIntersectingPlot() {
+        if (this.state.intersectingWordList.length > 0) {
+            return (<BarChart
+                width={400}
+                height={400}
+                data={this.state.intersectingWordList}
+                margin={{top: 5, right: 30, left: 10, bottom: 100}}
+            >
+                <XAxis
+                    dataKey="word"
+                    interval={0}
+                    type="category"
+                />
+                <YAxis
+                    type="number"
+                    allowDecimals={false}
+                />
+                <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={6}/>
+                <CartesianGrid strokeDasharray="3 3"/>
+                <Tooltip/>
+                <Bar dataKey="data1Count" fill={this.props.color1} />
+                <Bar dataKey="data2Count" fill={this.props.color2} />
+            </BarChart>);
+        } else {
+            return (<div />);
         }
-        var vocabCounts = {};
-        var tokenList = this.tokenizer.words()(inputStr);
-        tokenList.forEach(function (token) {
-            if (vocabCounts.hasOwnProperty(token.value)) {
-                vocabCounts[token.value]++;
-            } else {
-                vocabCounts[token.value] = 1;
-            }
-        });
-        var wordData = []
-        for (var type in vocabCounts) {
-            wordData.push({ 'word': type, 'count': vocabCounts[type] });
-        }
-        wordData.sort(function(d1, d2) {
-            return d2.count - d1.count;
-        });
-        for (var i = 0; i < wordData.length; ++i) {
-            wordData[i]['idx'] = i;
-        }
-        console.log(wordData);
-        this.setState({ hasChanged: false, wordData: wordData });
     }
 
     render() {
-        const axes = [
-            { key: 'yAxis', orient: 'bottom', className: 'yscale', name: 'CountAxis', tickFormat: (d) => d },
-            { key: 'xAxis', orient: 'left', className: 'xscale', name: 'WordAxis', tickFormat: d => d  }
-        ];
-        const fills = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd','#ccebc5','#ffed6f']
-
         return (
             <div className="row">
-                    <div className="col-xs-12 col-sm-5">
-                        <FormGroup
-                            label="buttonColumn"
-                            controlId="formBasicText"
-                        >
-                            <ControlLabel><h4>{this.props.sectionName}</h4></ControlLabel>
-                            <FormControl
-                                componentClass="textarea"
-                                rows={12}
-                                value={this.state.text_input}
-                                placeholder="Enter text to generate graphs of word counts."
-                                onChange={this.handleTextChange}
-                            />
-                        </FormGroup>
+                    <div className="col-xs-12 col-sm-4">
+                        <Panel>
+                            {this.renderWordTable(this.state.data1OnlyWords, this.props.color1)}
+                        </Panel>
                     </div>
-                    <div className="col-xs-12 col-sm-2 mx-auto">
-                        <FormGroup
-                            controlId="formBasicButton"
-                            id="formButton"
-                        >
-                            <Button
-                                type="button"
-                                bsStyle="primary"
-                                disabled={!this.state.hasChanged}
-                                onClick={this.handleSubmitText}
-                            >
-                                Generate ➤
-                            </Button>
-                        </FormGroup>                                                        
+                    <div className="col-xs-12 col-sm-4">
+                        <Panel>
+                            {this.renderIntersectingPlot.bind(this)()}
+                        </Panel>                                       
                     </div>
-                    <div className="col-xs-12 col-sm-5">
-                        <OrdinalFrame 
-                            data={this.state.wordData.slice(0, 10)}
-                            axis={axes}
-
-                            type={"bar"}
-                            projection={"horizontal"}
-                            oAccessor={"word"}
-                            oLabel={true}
-                            rAccessor={"count"}
-                            hoverAnnotation={true}
-                            
-                            style={d => {return {fill: fills[d.idx % fills.length], stroke: 'black'}}}
-                            oPadding={20}
-                            size={[ 500,400 ]}
-                            margin={{ left: 100, top: 15, bottom: 40, right: 15 }}
-                        />
+                    <div className="col-xs-12 col-sm-4">
+                        <Panel>
+                            {this.renderWordTable(this.state.data2OnlyWords, this.props.color2)}
+                        </Panel>                    
                     </div>
             </div>
         );
     }
 }
 
-export default WordCounter;
+export default WordComparer;

@@ -1,13 +1,19 @@
 {
   "name": "word-histograms",
   "version": "0.1.0",
-  "private": true,
+  "description": "An app to help compare word frequencies between two passages",
+  "engines": {
+      "node": "6.10.3"
+  },
   "dependencies": {
+    "d3": "^4.12.2",
     "react": "^16.2.0",
     "react-bootstrap": "^0.32.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.0",
+    "recharts": "^1.0.0-beta.9",
     "semiotic": "^1.5.0",
+    "stopword": "^0.1.9",
     "tokenize-text": "^1.1.3"
   },
   "scripts": {
