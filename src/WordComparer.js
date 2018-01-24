@@ -133,14 +133,17 @@ class WordComparer extends Component {
         if (this.state.intersectingWordList.length > 0) {
             return (<BarChart
                 width={400}
-                height={400}
+                height={500}
                 data={this.state.intersectingWordList}
-                margin={{top: 5, right: 30, left: 10, bottom: 100}}
+                margin={{top: 5, right: 30, left: 10, bottom: 10}}
             >
                 <XAxis
                     dataKey="word"
                     interval={0}
+                    angle={-45}
                     type="category"
+                    height={60}
+                    textAnchor="end"
                 />
                 <YAxis
                     type="number"
@@ -161,16 +164,17 @@ class WordComparer extends Component {
         return (
             <div className="row">
                     <div className="col-xs-12 col-sm-4">
+                        <h4>Words unique to Code A</h4>
                         <Panel>
                             {this.renderWordTable(this.state.data1OnlyWords, this.props.color1)}
                         </Panel>
                     </div>
                     <div className="col-xs-12 col-sm-4">
-                        <Panel>
-                            {this.renderIntersectingPlot.bind(this)()}
-                        </Panel>                                       
+                        <h4>Words in Codes A and B</h4>
+                        {this.renderIntersectingPlot.bind(this)()}                                     
                     </div>
                     <div className="col-xs-12 col-sm-4">
+                        <h4>Words unique to Code B</h4>
                         <Panel>
                             {this.renderWordTable(this.state.data2OnlyWords, this.props.color2)}
                         </Panel>                    
