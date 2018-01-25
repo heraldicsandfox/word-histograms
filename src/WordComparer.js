@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Panel, Table } from 'react-bootstrap';
+import { FormGroup, Panel, Radio, Table } from 'react-bootstrap';
 import { Bar, BarChart, Brush, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
 import './WordCounter.css';
 
@@ -7,8 +7,8 @@ class WordComparer extends Component {
     constructor(props) {
         super(props);
         var state = this.processData.bind(this)(props);
-        state['sort'] = "ratio";
-        state['intersectingWordList'] = this.getSortedIntersectingWordData(state.dataIntersection, state.sort);
+        state.sort = "ratio";
+        state.intersectingWordList = this.getSortedIntersectingWordData(state.dataIntersection, state.sort);
         this.state = state;
 	}
 
@@ -48,18 +48,18 @@ class WordComparer extends Component {
             }
         }
 
-        // Clean up data1
-        data1OnlyWords.sort(function(d1, d2) {
+        var oneDocSort = function (d1, d2) {
             return d2.count - d1.count;
-        });
+        };
+        // Clean up data1
+        data1OnlyWords.sort(oneDocSort);
         for (i = 0; i < data1OnlyWords.length; ++i) {
             data1OnlyWords[i]['idx'] = i;
+
         }
 
         // Clean up data2
-        data2OnlyWords.sort(function(d1, d2) {
-            return d2.count - d1.count;
-        });
+        data2OnlyWords.sort(oneDocSort);
         for (i = 0; i < data2OnlyWords.length; ++i) {
             data2OnlyWords[i]['idx'] = i;
         }
@@ -76,7 +76,7 @@ class WordComparer extends Component {
         var state = this.processData.bind(this)(newProps);
         state.intersectingWordList = this.getSortedIntersectingWordData(
                 state.dataIntersection,
-                state.sortType);
+                state.sort);
         this.setState(state);
     }
 
@@ -96,9 +96,9 @@ class WordComparer extends Component {
                     return 0;
                 }
             });
-        } else {
+        } else { // if "ratio"
             intersectingWordData.sort(function(d1, d2) {
-                return (d2.data1Count / d2.data2Count) - (d1.data1Count / d1.data2Count);
+                return (d2.data1Count * d1.data2Count) - (d1.data1Count * d2.data2Count);
             });
         }
         return intersectingWordData;
@@ -131,7 +131,9 @@ class WordComparer extends Component {
 
     renderIntersectingPlot() {
         if (this.state.intersectingWordList.length > 0) {
-            return (<BarChart
+            var end = Math.min(6, this.state.intersectingWordList.length);
+            return (<center>
+                <BarChart
                 width={400}
                 height={500}
                 data={this.state.intersectingWordList}
@@ -149,15 +151,23 @@ class WordComparer extends Component {
                     type="number"
                     allowDecimals={false}
                 />
-                <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={6}/>
+                <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={end} />
                 <CartesianGrid strokeDasharray="3 3"/>
                 <Tooltip/>
                 <Bar dataKey="data1Count" fill={this.props.color1} />
                 <Bar dataKey="data2Count" fill={this.props.color2} />
-            </BarChart>);
+            </BarChart></center>);
         } else {
             return (<div />);
         }
+    }
+
+    handleSortChange(e) {
+        var selected = e.target.value;
+        this.setState({
+            sort: selected,
+            intersectingWordList: this.getSortedIntersectingWordData(this.state.dataIntersection, selected)
+        });
     }
 
     render() {
@@ -171,6 +181,25 @@ class WordComparer extends Component {
                     </div>
                     <div className="col-xs-12 col-sm-4">
                         <h4>Words in Codes A and B</h4>
+                            <FormGroup>
+                                {"Sort by "}
+                                <Radio
+                                    value={"ratio"}
+                                    checked={this.state.sort === "ratio"}
+                                    name="sortRadio"
+                                    onChange={this.handleSortChange.bind(this)}
+                                    inline>
+                                    {" Frequency Ratio"}
+                                </Radio>{'  '}
+                                <Radio
+                                    value={"alphabetical"}
+                                    checked={this.state.sort === "alphabetical"}
+                                    name="sortRadio"
+                                    onChange={this.handleSortChange.bind(this)}
+                                    inline>
+                                    {" Alphabetical"}
+                                </Radio>
+                            </FormGroup>
                         {this.renderIntersectingPlot.bind(this)()}                                     
                     </div>
                     <div className="col-xs-12 col-sm-4">
