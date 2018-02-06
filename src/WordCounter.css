@@ -4,6 +4,6 @@
 }
 
 .panel {
-	max-height: 450px;
-	overflow-y: scroll;
+    max-height: 450px;
+    overflow-y: scroll;
 }

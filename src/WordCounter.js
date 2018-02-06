@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Button, ControlLabel, FormControl, FormGroup, Panel } from 'react-bootstrap';
-// import { OrdinalFrame } from 'semiotic';
-import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
+import { Button, ControlLabel, FormControl, FormGroup} from 'react-bootstrap';
 import Tokenizer from 'tokenize-text';
-import { en } from 'stopword';
 import './WordCounter.css';
+
+import WordCounterChart from './WordCounterChart.js';
 
 class WordCounter extends Component {
     constructor(props) {
@@ -12,6 +11,7 @@ class WordCounter extends Component {
 		this.handleTextChange = this.handleTextChange.bind(this);
         this.handleSubmitText = this.handleSubmitText.bind(this);
         this.tokenizer = new Tokenizer();
+        this.updateText = this.updateText.bind(this);
 
 		this.state = {
 			textInput: '',
@@ -37,15 +37,19 @@ class WordCounter extends Component {
     }
 
     handleSubmitText(e) {
+        this.updateText(this.props);
+    }
+    
+    updateText(props) {
         var inputStr = this.state.textInput;
-        if (!this.props.useCaps) {
+        if (props.useCaps) {
             inputStr = inputStr.toLowerCase();
         }
         var vocabCounts = {};
-        const stoplist = new Set(en);
         var tokenList = this.tokenizer.words()(inputStr);
+        var stoplistSet = new Set(props.stoplist);
         tokenList.forEach(function (token) {
-            if (!stoplist.has(token.value)) {
+            if (!(stoplistSet.has(token.value))) {
                 if (vocabCounts.hasOwnProperty(token.value)) {
                     vocabCounts[token.value]++;
                 } else {
@@ -62,7 +66,7 @@ class WordCounter extends Component {
         for (var i = 0; i < wordData.length; ++i) {
             wordData[i]['idx'] = i;
         }
-        this.props.handleData(wordData);
+        props.handleData(wordData);
         const nWords = Number(this.state.nWordsField);
         this.setState({ hasChanged: false, wordData: wordData, nWords: nWords });
     }
@@ -77,9 +81,14 @@ class WordCounter extends Component {
         }
     }
 
+    componentWillReceiveProps(newProps) {
+        if (this.props.stoplist !== newProps.stoplist) {
+            this.updateText(newProps);
+        }
+    }
+    
     render() {
         var currentWordData = this.state.wordData.slice(0, this.state.nWords);
-        var graphHeight = Math.max(20 * this.state.nWords, 360);
 
         return (
             <div className="row">
@@ -92,7 +101,7 @@ class WordCounter extends Component {
                             <FormControl
                                 componentClass="textarea"
                                 rows={12}
-                                value={this.state.text_input}
+                                value={this.state.textInput}
                                 placeholder="Enter text to generate graphs of word counts."
                                 onChange={this.handleTextChange}
                             />
@@ -106,7 +115,7 @@ class WordCounter extends Component {
                                     validationState={this.validateCount()}>
                                 <b>Show
                                 <FormControl
-                                    style={{width: "45px"}}
+                                    style={{width: "60px"}}
                                     type="text"
                                     value={this.state.nWordsField}
                                     onChange={this.handleCountChange.bind(this)}
@@ -126,29 +135,7 @@ class WordCounter extends Component {
                                                                       
                     </div>
                     <div className="col-xs-12 col-sm-6">
-                        <Panel>
-                            <BarChart
-                                width={600}
-                                height={graphHeight}
-                                data={currentWordData}
-                                margin={{top: 5, right: 30, left: 50, bottom: 5}}
-                                layout={"vertical"}
-                            >
-                                <XAxis
-                                    type="number"
-                                    orientation="top"
-                                    allowDecimals={false}
-                                />
-                                <YAxis
-                                    dataKey="word"
-                                    interval={0}
-                                    type="category"
-                                />
-                                <CartesianGrid strokeDasharray="3 3"/>
-                                <Tooltip/>
-                                <Bar dataKey="count" fill={this.props.color} />
-                            </BarChart>
-                        </Panel>
+                        <WordCounterChart color={this.props.color} wordData={currentWordData} />
                     </div>
             </div>
         );
