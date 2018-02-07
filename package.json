@@ -15,6 +15,7 @@
     "react-scrollbar": "^0.5.1",
     "recharts": "^1.0.0-beta.10",
     "semiotic": "^1.6.0",
+    "stemmer": "^1.0.2",
     "stopword": "^0.1.9",
     "tokenize-text": "^1.1.3"
   },

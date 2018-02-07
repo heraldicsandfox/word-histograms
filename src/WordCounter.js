@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, ControlLabel, FormControl, FormGroup} from 'react-bootstrap';
+import porterStemmer from 'stemmer';
 import Tokenizer from 'tokenize-text';
 import './WordCounter.css';
 
@@ -40,20 +41,50 @@ class WordCounter extends Component {
         this.updateText(this.props);
     }
     
+    sRemovalStemmer(word) {
+        if (word.endsWith("ies") && !(word.endsWith("aies")) && !(word.endsWith("eies"))) {
+            return word.substring(0, word.length - 3).concat("y");
+        } else if (word.endsWith("es") && !(word.endsWith("aes")) && !(word.endsWith("ees")) && !(word.endsWith("oes"))) {
+            return word.substring(0, word.length - 1);
+        } else if (word.endsWith("s") && !(word.endsWith("us")) && !(word.endsWith("ss"))) {
+            return word.substring(0, word.length - 1);
+        } else {
+            return word;
+        }
+    }
+
+    getStemmerFunc(stemmer) {
+        if (stemmer === "porter") {
+            return porterStemmer;
+        } else if (stemmer === "sRemoval") {
+            return this.sRemovalStemmer;
+        } else {
+            return (function(word) { return word; });
+        }
+    }
+
     updateText(props) {
+        var stemmerFunc = this.getStemmerFunc(props.stemmer);
         var inputStr = this.state.textInput;
-        if (props.useCaps) {
+        if (!props.useCaps) {
             inputStr = inputStr.toLowerCase();
         }
         var vocabCounts = {};
         var tokenList = this.tokenizer.words()(inputStr);
-        var stoplistSet = new Set(props.stoplist);
-        tokenList.forEach(function (token) {
-            if (!(stoplistSet.has(token.value))) {
-                if (vocabCounts.hasOwnProperty(token.value)) {
-                    vocabCounts[token.value]++;
+        var stoplistSet = new Set(props.stoplist.map( function(value) {
+            if (!props.useCaps) {
+                return stemmerFunc(value.toLowerCase());
+            } else {
+                return stemmerFunc(value);
+            }
+        }));
+        tokenList.forEach(function (rawToken) {
+            var token = stemmerFunc(rawToken.value);
+            if (!(stoplistSet.has(token))) {
+                if (vocabCounts.hasOwnProperty(token)) {
+                    vocabCounts[token]++;
                 } else {
-                    vocabCounts[token.value] = 1;
+                    vocabCounts[token] = 1;
             }}
         });
         var wordData = []
@@ -82,7 +113,7 @@ class WordCounter extends Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (this.props.stoplist !== newProps.stoplist) {
+        if (this.props.stoplist !== newProps.stoplist || this.props.stemmer !== newProps.stemmer) {
             this.updateText(newProps);
         }
     }

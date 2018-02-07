@@ -11,13 +11,17 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { data1: [], data2: [], stoplist: en };
+    this.state = { data1: [], data2: [], stoplist: en, stemmer: "none" };
   }
 
   modifyStoplist(newList) {
-    this.setState({
-      stoplist: newList
-    });
+    this.setState({ stoplist: newList });
+  }
+
+  modifyStemmer(newStemmer) {
+    if (newStemmer !== this.state.stemmer) {
+      this.setState({ stemmer: newStemmer });
+    }
   }
 
   handleFirstData(dataSet) {
@@ -40,12 +44,18 @@ class App extends Component {
         <Jumbotron>
           <h1>Word Histograms for Grounded Codes</h1>
           <p className="lead">Input text into the boxes below to view and compare word frequencies between two collections of passages.</p>
-          <Preprocessing stoplist={this.state.stoplist} modifyStoplist={this.modifyStoplist.bind(this)} />
+          <Preprocessing
+            stoplist={this.state.stoplist}
+            modifyStoplist={this.modifyStoplist.bind(this)}
+            stemmer={this.state.stemmer}
+            modifyStemmer={this.modifyStemmer.bind(this)}
+          />
         </Jumbotron>
         <WordCounter 
           sectionName={"Text with Code A"}
           useCaps={false}
           stoplist={this.state.stoplist}
+          stemmer={this.state.stemmer}
           handleData={this.handleFirstData.bind(this)}
           color={color1}
         />
@@ -53,6 +63,7 @@ class App extends Component {
           sectionName={"Text with Code B"}
           useCaps={false}
           stoplist={this.state.stoplist}
+          stemmer={this.state.stemmer}
           handleData={this.handleSecondData.bind(this)}
           color={color2}
         />
