@@ -16,7 +16,6 @@ class WordCounter extends Component {
 
 		this.state = {
 			textInput: '',
-            hasChanged: false,
             nWordsField: "10",
             wordData: [],
             nWords: 10
@@ -26,14 +25,13 @@ class WordCounter extends Component {
     handleTextChange(e) {
         this.setState({
             textInput: e.target.value,
-            hasChanged: true
         });
+        this.updateText(this.props);
     }
 
     handleCountChange(e) {
         this.setState({ 
             nWordsField: e.target.value,
-            hasChanged: true
         });
     }
 
@@ -143,7 +141,8 @@ class WordCounter extends Component {
                             <br/><br/><br/><br/><br/>
                                 <FormGroup
                                     controlId="formCountInput"
-                                    validationState={this.validateCount()}>
+                                    validationState={this.validateCount()}
+                                    inline>
                                 <b>Show
                                 <FormControl
                                     style={{width: "60px"}}
@@ -154,14 +153,6 @@ class WordCounter extends Component {
                                 words</b> 
                                 </FormGroup>
                             <br/>
-                            <Button
-                                type="button"
-                                bsStyle="primary"
-                                disabled={!this.state.hasChanged}
-                                onClick={this.handleSubmitText}
-                            >
-                                Generate ➤
-                            </Button>
                         </center>
                                                                       
                     </div>
@@ -174,22 +165,3 @@ class WordCounter extends Component {
 }
 
 export default WordCounter;
-
-// <OrdinalFrame 
-//     data={currentWordData}
-//     axis={axes}
-
-//     type={"bar"}
-//     projection={"horizontal"}
-//     oAccessor={"word"}
-//     oLabel={true}
-//     rAccessor={"count"}
-//     hoverAnnotation={true}
-//     annotations={currentWordData.forEach(function (datum) {
-//         return datum.word;
-//     })}
-//     style={d => {return {fill: fills[d.idx % fills.length], stroke: 'black'}}}
-//     oPadding={20}
-//     size={[ 700, graphHeight]}
-//     margin={{ left: 100, top: 15, bottom: 40, right: 15 }}
-// />

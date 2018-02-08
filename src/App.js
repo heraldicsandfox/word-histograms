@@ -52,7 +52,7 @@ class App extends Component {
           />
         </Jumbotron>
         <WordCounter 
-          sectionName={"Text with Code A"}
+          sectionName={"Text A"}
           useCaps={false}
           stoplist={this.state.stoplist}
           stemmer={this.state.stemmer}
@@ -60,7 +60,7 @@ class App extends Component {
           color={color1}
         />
         <WordCounter 
-          sectionName={"Text with Code B"}
+          sectionName={"Text B"}
           useCaps={false}
           stoplist={this.state.stoplist}
           stemmer={this.state.stemmer}

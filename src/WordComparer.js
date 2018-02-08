@@ -64,13 +64,13 @@ class WordComparer extends Component {
         return (
             <div className="row">
                     <div className="col-xs-12 col-sm-4">
-                        <h4>Words unique to Code A</h4>
+                        <h4>Words unique to A</h4>
                         <Panel>
                             <WordComparerTable wordList={this.state.data1OnlyWords} color={this.props.color1} />
                         </Panel>
                     </div>
                     <div className="col-xs-12 col-sm-4">
-                        <h4>Words in Codes A and B</h4>
+                        <h4>Words in A and B</h4>
                         <WordComparerChart
                             wordData={this.state.dataIntersection}
                             color1={this.props.color1}
@@ -78,7 +78,7 @@ class WordComparer extends Component {
                         />                                     
                     </div>
                     <div className="col-xs-12 col-sm-4">
-                        <h4>Words unique to Code B</h4>
+                        <h4>Words unique to B</h4>
                         <Panel>
                             <WordComparerTable wordList={this.state.data2OnlyWords} color={this.props.color2} />
                         </Panel>                    
