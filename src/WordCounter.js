@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Button, ControlLabel, FormControl, FormGroup} from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup, Panel} from 'react-bootstrap';
 import porterStemmer from 'stemmer';
 import Tokenizer from 'tokenize-text';
-import './WordCounter.css';
 
 import WordCounterChart from './WordCounterChart.js';
 
@@ -16,9 +15,7 @@ class WordCounter extends Component {
 
 		this.state = {
 			textInput: '',
-            nWordsField: "10",
             wordData: [],
-            nWords: 10
 		};
 	}
 
@@ -27,12 +24,6 @@ class WordCounter extends Component {
             textInput: e.target.value,
         });
         this.updateText(this.props);
-    }
-
-    handleCountChange(e) {
-        this.setState({ 
-            nWordsField: e.target.value,
-        });
     }
 
     handleSubmitText(e) {
@@ -96,18 +87,7 @@ class WordCounter extends Component {
             wordData[i]['idx'] = i;
         }
         props.handleData(wordData);
-        const nWords = Number(this.state.nWordsField);
-        this.setState({ hasChanged: false, wordData: wordData, nWords: nWords });
-    }
-
-    validateCount() {
-        const nWordsField = this.state.nWordsField;
-        try {
-            Number(nWordsField);
-            return 'success';
-        } catch (e) {
-            return 'invalid';
-        }
+        this.setState({ wordData: wordData });
     }
 
     componentWillReceiveProps(newProps) {
@@ -117,11 +97,12 @@ class WordCounter extends Component {
     }
     
     render() {
-        var currentWordData = this.state.wordData.slice(0, this.state.nWords);
+        var currentWordData = this.state.wordData;
 
         return (
             <div className="row">
-                    <div className="col-xs-12 col-sm-5">
+            <Panel><Panel.Body>
+                    <div className="col-xs-12 col-sm-6">
                         <FormGroup
                             label="buttonColumn"
                             controlId="formBasicText"
@@ -136,29 +117,10 @@ class WordCounter extends Component {
                             />
                         </FormGroup>
                     </div>
-                    <div className="col-xs-12 col-sm-1 mx-auto">
-                        <center>
-                            <br/><br/><br/><br/><br/>
-                                <FormGroup
-                                    controlId="formCountInput"
-                                    validationState={this.validateCount()}
-                                    inline>
-                                <b>Show
-                                <FormControl
-                                    style={{width: "60px"}}
-                                    type="text"
-                                    value={this.state.nWordsField}
-                                    onChange={this.handleCountChange.bind(this)}
-                                />
-                                words</b> 
-                                </FormGroup>
-                            <br/>
-                        </center>
-                                                                      
-                    </div>
                     <div className="col-xs-12 col-sm-6">
                         <WordCounterChart color={this.props.color} wordData={currentWordData} />
                     </div>
+            </Panel.Body></Panel>
             </div>
         );
     }

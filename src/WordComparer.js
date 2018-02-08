@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Panel } from 'react-bootstrap';
-import './WordCounter.css';
+import './WordComparer.css';
 
 import WordComparerChart from './WordComparerChart.js';
 import WordComparerTable from './WordComparerTable.js';
@@ -65,7 +65,7 @@ class WordComparer extends Component {
             <div className="row">
                     <div className="col-xs-12 col-sm-4">
                         <h4>Words unique to A</h4>
-                        <Panel>
+                        <Panel className="comparer-table">
                             <WordComparerTable wordList={this.state.data1OnlyWords} color={this.props.color1} />
                         </Panel>
                     </div>
@@ -79,7 +79,7 @@ class WordComparer extends Component {
                     </div>
                     <div className="col-xs-12 col-sm-4">
                         <h4>Words unique to B</h4>
-                        <Panel>
+                        <Panel className="comparer-table">
                             <WordComparerTable wordList={this.state.data2OnlyWords} color={this.props.color2} />
                         </Panel>                    
                     </div>

@@ -1,0 +1,9 @@
+.form-control {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+}
+
+.comparer-table {
+    max-height: 450px;
+    overflow-y: scroll;
+}

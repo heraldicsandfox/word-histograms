@@ -42,7 +42,7 @@ class App extends Component {
     return (
       <div className="App">
         <Jumbotron>
-          <h1>Word Histograms for Grounded Codes</h1>
+          <h2>Word Histograms for Grounded Codes</h2>
           <p className="lead">Input text into the boxes below to view and compare word frequencies between two collections of passages.</p>
           <Preprocessing
             stoplist={this.state.stoplist}
