@@ -11,7 +11,7 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { data1: [], data2: [], stoplist: en, stemmer: "none" };
+    this.state = { data1: [], data2: [], stoplist: en, stemmer: "none", smoothing: 0 };
   }
 
   modifyStoplist(newList) {
@@ -22,6 +22,10 @@ class App extends Component {
     if (newStemmer !== this.state.stemmer) {
       this.setState({ stemmer: newStemmer });
     }
+  }
+
+  modifySmoothing(newSmoothing) {
+    this.setState({ smoothing: newSmoothing })
   }
 
   handleFirstData(dataSet) {
@@ -44,13 +48,14 @@ class App extends Component {
         <Jumbotron>
           <h2>Word Histograms for Grounded Codes</h2>
           <p className="lead">Input text into the boxes below to view and compare word frequencies between two collections of passages.</p>
-          <Preprocessing
+        </Jumbotron>
+        <Preprocessing
             stoplist={this.state.stoplist}
             modifyStoplist={this.modifyStoplist.bind(this)}
             stemmer={this.state.stemmer}
             modifyStemmer={this.modifyStemmer.bind(this)}
+            modifySmoothing={this.modifySmoothing.bind(this)}
           />
-        </Jumbotron>
         <WordCounter 
           sectionName={"Text A"}
           useCaps={false}
@@ -59,6 +64,7 @@ class App extends Component {
           handleData={this.handleFirstData.bind(this)}
           color={color1}
         />
+        <br/>
         <WordCounter 
           sectionName={"Text B"}
           useCaps={false}
@@ -67,6 +73,7 @@ class App extends Component {
           handleData={this.handleSecondData.bind(this)}
           color={color2}
         />
+        <br/><br/>
         <WordComparer
           data1={this.state.data1}
           data2={this.state.data2}

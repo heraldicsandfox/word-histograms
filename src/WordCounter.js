@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ControlLabel, FormControl, FormGroup, Panel} from 'react-bootstrap';
+import { FormControl, FormGroup, Panel} from 'react-bootstrap';
 import porterStemmer from 'stemmer';
 import Tokenizer from 'tokenize-text';
 
@@ -8,10 +8,9 @@ import WordCounterChart from './WordCounterChart.js';
 class WordCounter extends Component {
     constructor(props) {
         super(props);
-		this.handleTextChange = this.handleTextChange.bind(this);
-        this.handleSubmitText = this.handleSubmitText.bind(this);
-        this.tokenizer = new Tokenizer();
         this.updateText = this.updateText.bind(this);
+		this.handleTextChange = this.handleTextChange.bind(this);
+        this.tokenizer = new Tokenizer();
 
 		this.state = {
 			textInput: '',
@@ -23,11 +22,7 @@ class WordCounter extends Component {
         this.setState({
             textInput: e.target.value,
         });
-        this.updateText(this.props);
-    }
-
-    handleSubmitText(e) {
-        this.updateText(this.props);
+        this.updateText(this.props, e.target.value);
     }
     
     sRemovalStemmer(word) {
@@ -52,9 +47,9 @@ class WordCounter extends Component {
         }
     }
 
-    updateText(props) {
+    updateText(props, textInput) {
         var stemmerFunc = this.getStemmerFunc(props.stemmer);
-        var inputStr = this.state.textInput;
+        var inputStr = textInput;
         if (!props.useCaps) {
             inputStr = inputStr.toLowerCase();
         }
@@ -92,25 +87,25 @@ class WordCounter extends Component {
 
     componentWillReceiveProps(newProps) {
         if (this.props.stoplist !== newProps.stoplist || this.props.stemmer !== newProps.stemmer) {
-            this.updateText(newProps);
+            this.updateText(newProps, this.state.textInput);
         }
     }
     
     render() {
         var currentWordData = this.state.wordData;
-
         return (
             <div className="row">
-            <Panel><Panel.Body>
+            <Panel>
+                <Panel.Heading><Panel.Title><h3>{this.props.sectionName}</h3></Panel.Title></Panel.Heading>
+                <Panel.Body>
                     <div className="col-xs-12 col-sm-6">
                         <FormGroup
                             label="buttonColumn"
                             controlId="formBasicText"
                         >
-                            <ControlLabel><h4>{this.props.sectionName}</h4></ControlLabel>
                             <FormControl
                                 componentClass="textarea"
-                                rows={12}
+                                rows={16}
                                 value={this.state.textInput}
                                 placeholder="Enter text to generate graphs of word counts."
                                 onChange={this.handleTextChange}

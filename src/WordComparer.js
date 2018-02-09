@@ -63,6 +63,9 @@ class WordComparer extends Component {
     render() {
         return (
             <div className="row">
+            <Panel>
+                <Panel.Heading><Panel.Title><h3>Comparison</h3></Panel.Title></Panel.Heading>
+                <Panel.Body>
                     <div className="col-xs-12 col-sm-4">
                         <h4>Words unique to A</h4>
                         <Panel className="comparer-table">
@@ -83,6 +86,8 @@ class WordComparer extends Component {
                             <WordComparerTable wordList={this.state.data2OnlyWords} color={this.props.color2} />
                         </Panel>                    
                     </div>
+                </Panel.Body>
+            </Panel>
             </div>
         );
     }
