@@ -24,8 +24,9 @@ class WordCounter extends Component {
 	}
 
     handleTextChange(e) {
+        var newText = e.target.value.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
         this.setState({
-            textInput: e.target.value,
+            textInput: newText,
             hasChanged: true
         });
     }
