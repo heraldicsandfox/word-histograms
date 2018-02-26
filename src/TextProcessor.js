@@ -19,6 +19,7 @@ class TextProcessor extends Component {
     processText(textInput) {
         var segments = textInput.split('\n\n\n')
         var newCodeDict = new Map();
+        var allText = ""
         for (var seg in segments) {
             var fields = segments[seg].split('\n');
             if (fields.length < 3) {
@@ -28,6 +29,11 @@ class TextProcessor extends Component {
             var newText = fields.slice(2).join('\n');
             for (var cidx in codes) {
                 var code = codes[cidx];
+                code = code.trim().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"");
+                if (code.length === 0) {
+                    continue;
+                }
+
                 if (newCodeDict.has(code)) {
                     var oldText = newCodeDict.get(code);
                     newCodeDict.set(code, oldText + '\n' + newText);
@@ -35,8 +41,11 @@ class TextProcessor extends Component {
                     newCodeDict.set(code, newText);
                 }
             }
+            allText = allText + '\n' + newText;
         }
+        newCodeDict.set("", allText);
         console.log(newCodeDict);
+        this.props.handleText(newCodeDict);
         this.setState({ codeDict: newCodeDict, textInput: textInput });
     }
 
@@ -47,7 +56,7 @@ class TextProcessor extends Component {
 
     render() {
         return (
-            <div className="col-xs-12 col-sm-5">
+            <div>
                 <FormGroup
                     label="tableInput"
                     controlId="formTableInput"
