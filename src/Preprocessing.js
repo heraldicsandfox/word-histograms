@@ -14,17 +14,20 @@ class Preprocessing extends Component {
                     <Stopwords
                         stoplist={this.props.stoplist}
                         modifyStoplist={this.props.modifyStoplist}
+                        active={this.props.active}
                     />
                 </div>
                 <div className="col-xs-4">
                     <Smoothing
                         modifySmoothing={this.props.modifySmoothing}
+                        active={this.props.active}
                     />
                 </div>
                 <div className="col-xs-4">
                     <Stemmer
                         stemmer={this.props.stemmer}
                         modifyStemmer={this.props.modifyStemmer}
+                        active={this.props.active}
                     />
                 </div>
             </div>

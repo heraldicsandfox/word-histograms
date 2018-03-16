@@ -47,6 +47,14 @@ class WordComparerChart extends Component {
         var nWords = Object.keys(this.props.wordData).length;
         if (nWords > 0) {
             var end = Math.min(6, nWords);
+            var maybeBrush;
+            if (end < 6) {
+                maybeBrush = (<div/>);
+            } else {
+                maybeBrush = (
+                    <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={end} />
+                );
+            }
             var sortedWordList = this.getSortedWordData(this.props.wordData, this.state.sort);
             return (<div>
                 <center>
@@ -88,7 +96,7 @@ class WordComparerChart extends Component {
                         type="number"
                         allowDecimals={false}
                     />
-                    <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={end} />
+                    {maybeBrush}
                     <CartesianGrid strokeDasharray="3 3"/>
                     <Tooltip/>
                     <Bar dataKey="data1Count" fill={this.props.color1} />

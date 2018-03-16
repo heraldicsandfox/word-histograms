@@ -14,7 +14,15 @@ class WordCounter extends Component {
 
 		this.state = {
 			textInput: '',
-            wordData: [],
+            wordData: [
+                {count: 1, idx: 0, word: 'enter'},
+                {count: 1, idx: 1, word: 'text'},
+                {count: 1, idx: 2, word: 'to'},
+                {count: 1, idx: 3, word: 'generate'},
+                {count: 1, idx: 4, word: 'word'},
+                {count: 1, idx: 5, word: 'count'},
+                {count: 1, idx: 6, word: 'graph'}
+            ],
 		};
 	}
 

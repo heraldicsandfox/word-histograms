@@ -1,17 +1,24 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Jumbotron } from 'react-bootstrap';
-import { en } from 'stopword';
+import { Button, Jumbotron } from 'react-bootstrap';
 
 import Preprocessing from './Preprocessing.js';
 import WordComparer from './WordComparer.js';
 import WordCounter from './WordCounter.js';
 
+
+const STAGE_INTRO = 0;
+const STAGE_FIRST_DATA = 1;
+const STAGE_SECOND_DATA = 2;
+const STAGE_PREPROCESS = 3;
+const STAGE_COMPARE = 4;
+
+
 class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { data1: [], data2: [], stoplist: en, stemmer: "none", smoothing: 0 };
+    this.state = { data1: [], data2: [], stoplist: [], stemmer: "none", smoothing: 0, stage: 0 };
   }
 
   modifyStoplist(newList) {
@@ -29,15 +36,29 @@ class App extends Component {
   }
 
   handleFirstData(dataSet) {
-    this.setState({
-      data1: dataSet
-    });
+    if (this.state.stage > STAGE_FIRST_DATA) {
+      this.setState({
+        data1: dataSet
+      });
+    } else {
+      this.setState({
+        data1: dataSet,
+        stage: STAGE_SECOND_DATA
+      });
+    }
   }
 
   handleSecondData(dataSet) {
-    this.setState({
-      data2: dataSet
-    });
+    if (this.state.stage > STAGE_SECOND_DATA) {
+      this.setState({
+        data2: dataSet
+      });
+    } else {
+      this.setState({
+        data2: dataSet,
+        stage: STAGE_PREPROCESS
+      });
+    }
   }
 
   render() {
@@ -49,13 +70,6 @@ class App extends Component {
           <h2>Word Histograms for Grounded Codes</h2>
           <p className="lead">Input text into the boxes below to view and compare word frequencies between two collections of passages.</p>
         </Jumbotron>
-        <Preprocessing
-            stoplist={this.state.stoplist}
-            modifyStoplist={this.modifyStoplist.bind(this)}
-            stemmer={this.state.stemmer}
-            modifyStemmer={this.modifyStemmer.bind(this)}
-            modifySmoothing={this.modifySmoothing.bind(this)}
-          />
         <WordCounter 
           sectionName={"Text A"}
           useCaps={false}
@@ -63,6 +77,7 @@ class App extends Component {
           stemmer={this.state.stemmer}
           handleData={this.handleFirstData.bind(this)}
           color={color1}
+          active={this.state.stage >= STAGE_FIRST_DATA}
         />
         <br/>
         <WordCounter 
@@ -72,13 +87,24 @@ class App extends Component {
           stemmer={this.state.stemmer}
           handleData={this.handleSecondData.bind(this)}
           color={color2}
+          active={this.state.stage >= STAGE_SECOND_DATA}
         />
-        <br/><br/>
+        <br/>
+        <Preprocessing
+          stoplist={this.state.stoplist}
+          modifyStoplist={this.modifyStoplist.bind(this)}
+          stemmer={this.state.stemmer}
+          modifyStemmer={this.modifyStemmer.bind(this)}
+          modifySmoothing={this.modifySmoothing.bind(this)}
+          active={this.state.stage >= STAGE_PREPROCESS}
+        />
+        <br/>
         <WordComparer
           data1={this.state.data1}
           data2={this.state.data2}
           color1={color1}
           color2={color2}
+          active={this.state.stage >= STAGE_COMPARE}
         />
       </div>
     );

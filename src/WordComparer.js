@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Panel } from 'react-bootstrap';
-import './WordComparer.css';
+import { en } from 'stopword';
 
 import WordComparerChart from './WordComparerChart.js';
 import WordComparerTable from './WordComparerTable.js';
+import './WordComparer.css';
 
 class WordComparer extends Component {
     constructor(props) {
