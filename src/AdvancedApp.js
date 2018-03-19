@@ -7,7 +7,7 @@ import Preprocessing from './Preprocessing.js';
 import WordComparer from './WordComparer.js';
 import WordCounter from './WordCounter.js';
 
-class App extends Component {
+class AdvancedApp extends Component {
 
   constructor(props) {
     super(props);
@@ -78,4 +78,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default AdvancedApp;
