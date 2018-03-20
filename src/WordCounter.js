@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, ControlLabel, FormControl, FormGroup} from 'react-bootstrap';
+import { Button, ControlLabel, Form, FormControl, FormGroup} from 'react-bootstrap';
 import porterStemmer from 'stemmer';
 import Tokenizer from 'tokenize-text';
 import './WordCounter.css';
@@ -9,27 +9,20 @@ import WordCounterChart from './WordCounterChart.js';
 class WordCounter extends Component {
     constructor(props) {
         super(props);
-		this.handleTextChange = this.handleTextChange.bind(this);
-        this.handleSubmitText = this.handleSubmitText.bind(this);
         this.tokenizer = new Tokenizer();
-        this.updateText = this.updateText.bind(this);
+
+        this.handleCodeChange = this.handleCodeChange.bind(this);
+        this.handleCountChange = this.handleCountChange.bind(this);
+        this.renderDropdownMenu = this.renderDropdownMenu.bind(this);
 
 		this.state = {
-			textInput: '',
+			textCode: '',
             hasChanged: false,
             nWordsField: "10",
             wordData: [],
             nWords: 10
 		};
 	}
-
-    handleTextChange(e) {
-        var newText = e.target.value.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
-        this.setState({
-            textInput: newText,
-            hasChanged: true
-        });
-    }
 
     handleCountChange(e) {
         this.setState({ 
@@ -38,10 +31,6 @@ class WordCounter extends Component {
         });
     }
 
-    handleSubmitText(e) {
-        this.updateText(this.props);
-    }
-    
     sRemovalStemmer(word) {
         if (word.endsWith("ies") && !(word.endsWith("aies")) && !(word.endsWith("eies"))) {
             return word.substring(0, word.length - 3).concat("y");
@@ -64,9 +53,20 @@ class WordCounter extends Component {
         }
     }
 
-    updateText(props) {
+    handleCodeChange(e) {
+        var textCode = e.target.value;
+        this.updateText(this.props, textCode);
+    }
+
+    updateText(props, code) {
+        console.log(props, code);
         var stemmerFunc = this.getStemmerFunc(props.stemmer);
-        var inputStr = this.state.textInput;
+        var inputStr;
+        if (props.codeDict.has(code)) {
+            inputStr = props.codeDict.get(code);
+        } else {
+            inputStr = "";
+        }
         if (!props.useCaps) {
             inputStr = inputStr.toLowerCase();
         }
@@ -98,9 +98,9 @@ class WordCounter extends Component {
         for (var i = 0; i < wordData.length; ++i) {
             wordData[i]['idx'] = i;
         }
-        props.handleData(wordData);
+        props.handleData(wordData, code);
         const nWords = Number(this.state.nWordsField);
-        this.setState({ hasChanged: false, wordData: wordData, nWords: nWords });
+        this.setState({ hasChanged: false, wordData: wordData, nWords: nWords, textCode: code });
     }
 
     validateCount() {
@@ -115,60 +115,62 @@ class WordCounter extends Component {
 
     componentWillReceiveProps(newProps) {
         if (this.props.stoplist !== newProps.stoplist || this.props.stemmer !== newProps.stemmer) {
-            this.updateText(newProps);
+            this.updateText(newProps, this.state.textCode);
+        } else if (this.props.codeDict !== newProps.codeDict) {
+            this.updateText(newProps, '');
+            this.setState({ textCode: '' });
         }
+    }
+
+    renderDropdownMenu(codeDict) {
+        var listOfCodes = []
+        codeDict.forEach(function (value, key, map) {
+            listOfCodes.push(key);
+        })
+        listOfCodes.sort();
+        var selectOptions = listOfCodes.map(function(code) {
+            return (<option value={code} key={code}>{code}</option>);
+        });
+        return (
+            <FormControl componentClass="select" placeholder='' onChange={this.handleCodeChange}>
+                { selectOptions }
+            </FormControl>
+        );
     }
     
     render() {
         var currentWordData = this.state.wordData.slice(0, this.state.nWords);
 
         return (
-            <div className="row">
-                    <div className="col-xs-12 col-sm-5">
-                        <FormGroup
-                            label="buttonColumn"
-                            controlId="formBasicText"
+            <div className="col-xs-12 col-sm-6">
+                <Form inline>
+                    <FormGroup
+                        controlId="formCountInput"
+                        validationState={this.validateCount()}
+                    >
+                        <ControlLabel><h4>{this.props.sectionName}</h4></ControlLabel>
+                        <br />
+                        { this.renderDropdownMenu(this.props.codeDict) }
+                        <br />
+                        Word count:
+                        <FormControl
+                            style={{width: "60px"}}
+                            type="text"
+                            value={this.state.nWordsField}
+                            onChange={this.handleCountChange}
+                        />
+                        <Button
+                            type="button"
+                            bsStyle="primary"
+                            disabled={!this.state.hasChanged}
+                            onClick={this.handleCodeChange}
                         >
-                            <ControlLabel><h4>{this.props.sectionName}</h4></ControlLabel>
-                            <FormControl
-                                componentClass="textarea"
-                                rows={12}
-                                value={this.state.textInput}
-                                placeholder="Enter text to generate graphs of word counts."
-                                onChange={this.handleTextChange}
-                            />
-                        </FormGroup>
-                    </div>
-                    <div className="col-xs-12 col-sm-1 mx-auto">
-                        <center>
-                            <br/><br/><br/><br/><br/>
-                                <FormGroup
-                                    controlId="formCountInput"
-                                    validationState={this.validateCount()}>
-                                <b>Show
-                                <FormControl
-                                    style={{width: "60px"}}
-                                    type="text"
-                                    value={this.state.nWordsField}
-                                    onChange={this.handleCountChange.bind(this)}
-                                />
-                                words</b> 
-                                </FormGroup>
-                            <br/>
-                            <Button
-                                type="button"
-                                bsStyle="primary"
-                                disabled={!this.state.hasChanged}
-                                onClick={this.handleSubmitText}
-                            >
-                                Generate ➤
-                            </Button>
-                        </center>
-                                                                      
-                    </div>
-                    <div className="col-xs-12 col-sm-6">
-                        <WordCounterChart color={this.props.color} wordData={currentWordData} />
-                    </div>
+                            Generate ➤
+                        </Button> 
+                    </FormGroup>
+                </Form>
+                <br />
+                <WordCounterChart color={this.props.color} wordData={currentWordData} />
             </div>
         );
     }

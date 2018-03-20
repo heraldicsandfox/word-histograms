@@ -43,10 +43,20 @@ class WordComparerChart extends Component {
         }); 
     }
 
+    maybeBrush(nWords, end) {
+        if (nWords > 10) {
+            return (
+                <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={end} />
+            );
+        } else {
+            return (<div />);
+        }
+    }
+
     render() {
         var nWords = Object.keys(this.props.wordData).length;
         if (nWords > 0) {
-            var end = Math.min(6, nWords);
+            var end = Math.min(10, nWords);
             var sortedWordList = this.getSortedWordData(this.props.wordData, this.state.sort);
             return (<div>
                 <center>
@@ -71,7 +81,7 @@ class WordComparerChart extends Component {
                 </FormGroup>
 
                 <BarChart
-                    width={400}
+                    width={700}
                     height={500}
                     data={sortedWordList}
                     margin={{top: 5, right: 30, left: 10, bottom: 10}}
@@ -88,11 +98,11 @@ class WordComparerChart extends Component {
                         type="number"
                         allowDecimals={false}
                     />
-                    <Brush dataKey='word' height={30} stroke="#cccccc" endIndex={end} />
+                    { this.maybeBrush(nWords, end) }
                     <CartesianGrid strokeDasharray="3 3"/>
                     <Tooltip/>
-                    <Bar dataKey="data1Count" fill={this.props.color1} />
-                    <Bar dataKey="data2Count" fill={this.props.color2} />
+                    <Bar dataKey={this.props.code1} fill={this.props.color1} />
+                    <Bar dataKey={this.props.code2} fill={this.props.color2} />
                 </BarChart></center></div>);
         } else {
             return (<div className="filler">Plot will render here.</div>);

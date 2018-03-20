@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import { Panel } from 'react-bootstrap';
 import './WordCounter.css';
 
 import WordComparerChart from './WordComparerChart.js';
-import WordComparerTable from './WordComparerTable.js';
 
 class WordComparer extends Component {
     constructor(props) {
@@ -24,9 +22,9 @@ class WordComparer extends Component {
             datum = props.data1[data_idx];
             if (setData2.has(datum['word'])) {
                 dataIntersection[datum['word']] = {
-                    'word': datum['word'],
-                    'data1Count': datum['count'] 
+                    'word': datum['word'] 
                 };
+                dataIntersection[datum['word']][props.code1] = datum['count'];
             } else {
                 data1OnlyWords.push({
                     'word': datum['word'],
@@ -38,7 +36,7 @@ class WordComparer extends Component {
         for (data_idx in props.data2) {
             datum = props.data2[data_idx];
             if (setData1.has(datum['word'])) {
-                dataIntersection[datum['word']]['data2Count'] = datum['count'];
+                dataIntersection[datum['word']][props.code2] = datum['count'];
             } else {
                 data2OnlyWords.push({
                     'word': datum['word'],
@@ -63,25 +61,15 @@ class WordComparer extends Component {
     render() {
         return (
             <div className="row">
-                    <div className="col-xs-12 col-sm-4">
-                        <h4>Words unique to Code A</h4>
-                        <Panel>
-                            <WordComparerTable wordList={this.state.data1OnlyWords} color={this.props.color1} />
-                        </Panel>
-                    </div>
-                    <div className="col-xs-12 col-sm-4">
+                    <div className="col-xs-12">
                         <h4>Words in Codes A and B</h4>
                         <WordComparerChart
                             wordData={this.state.dataIntersection}
                             color1={this.props.color1}
                             color2={this.props.color2}
+                            code1={this.props.code1}
+                            code2={this.props.code2}
                         />                                     
-                    </div>
-                    <div className="col-xs-12 col-sm-4">
-                        <h4>Words unique to Code B</h4>
-                        <Panel>
-                            <WordComparerTable wordList={this.state.data2OnlyWords} color={this.props.color2} />
-                        </Panel>                    
                     </div>
             </div>
         );
