@@ -1,17 +1,29 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Jumbotron } from 'react-bootstrap';
+import { Jumbotron, Panel } from 'react-bootstrap';
 import { en } from 'stopword';
 
 import Preprocessing from './Preprocessing.js';
+import TextProcessor from './TextProcessor.js';
 import WordComparer from './WordComparer.js';
 import WordCounter from './WordCounter.js';
 
-class AdvancedApp extends Component {
+class BasicApp extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { data1: [], data2: [], stoplist: en, stemmer: "none" };
+    this.modifyStemmer = this.modifyStemmer.bind(this);
+    this.modifyStoplist = this.modifyStoplist.bind(this);
+    this.handleText = this.handleText.bind(this);
+    this.handleFirstData = this.handleFirstData.bind(this);
+    this.handleSecondData = this.handleSecondData.bind(this);
+    this.state = {
+      data1: [],
+      data2: [],
+      codeDict: new Map(),
+      stoplist: en,
+      stemmer: "none"
+    };
   }
 
   modifyStoplist(newList) {
@@ -24,15 +36,23 @@ class AdvancedApp extends Component {
     }
   }
 
-  handleFirstData(dataSet) {
+  handleText(codeDict) {
     this.setState({
-      data1: dataSet
+      codeDict: codeDict
     });
   }
 
-  handleSecondData(dataSet) {
+  handleFirstData(dataSet, code) {
     this.setState({
-      data2: dataSet
+      data1: dataSet,
+      code1: code
+    });
+  }
+
+  handleSecondData(dataSet, code) {
+    this.setState({
+      data2: dataSet,
+      code2: code
     });
   }
 
@@ -46,36 +66,49 @@ class AdvancedApp extends Component {
           <p className="lead">Input text into the boxes below to view and compare word frequencies between two collections of passages.</p>
           <Preprocessing
             stoplist={this.state.stoplist}
-            modifyStoplist={this.modifyStoplist.bind(this)}
+            modifyStoplist={this.modifyStoplist}
             stemmer={this.state.stemmer}
-            modifyStemmer={this.modifyStemmer.bind(this)}
+            modifyStemmer={this.modifyStemmer}
           />
         </Jumbotron>
-        <WordCounter 
-          sectionName={"Text with Code A"}
-          useCaps={false}
-          stoplist={this.state.stoplist}
-          stemmer={this.state.stemmer}
-          handleData={this.handleFirstData.bind(this)}
-          color={color1}
-        />
-        <WordCounter 
-          sectionName={"Text with Code B"}
-          useCaps={false}
-          stoplist={this.state.stoplist}
-          stemmer={this.state.stemmer}
-          handleData={this.handleSecondData.bind(this)}
-          color={color2}
-        />
-        <WordComparer
-          data1={this.state.data1}
-          data2={this.state.data2}
-          color1={color1}
-          color2={color2}
-        />
+        <Panel><Panel.Body>
+          <div className="col-xs-12 col-sm-6 col-sm-offset-3">
+            <TextProcessor handleText={this.handleText} />
+          </div>
+        </Panel.Body></Panel>
+        <Panel><Panel.Body>
+          <WordCounter 
+            sectionName={"Text with Code A"}
+            useCaps={false}
+            stoplist={this.state.stoplist}
+            stemmer={this.state.stemmer}
+            handleData={this.handleFirstData}
+            color={color1}
+            codeDict={this.state.codeDict}
+          />
+          <WordCounter 
+            sectionName={"Text with Code B"}
+            useCaps={false}
+            stoplist={this.state.stoplist}
+            stemmer={this.state.stemmer}
+            handleData={this.handleSecondData}
+            color={color2}
+            codeDict={this.state.codeDict}
+          />
+        </Panel.Body></Panel>
+        <Panel><Panel.Body>
+          <WordComparer
+            data1={this.state.data1}
+            data2={this.state.data2}
+            code1={this.state.code1}
+            code2={this.state.code2}
+            color1={color1}
+            color2={color2}
+          />
+        </Panel.Body></Panel>
       </div>
     );
   }
 }
 
-export default AdvancedApp;
+export default BasicApp;

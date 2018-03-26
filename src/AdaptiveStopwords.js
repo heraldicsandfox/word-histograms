@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
+import './App.css';
+import { Label } from 'react-bootstrap';
 
 class AdaptiveStopwords extends Component {
 
@@ -11,15 +12,17 @@ class AdaptiveStopwords extends Component {
         }
 
         return this.props.wordData.map(function (datum) {
-            if (!this.props.stopwords.has(datum.word)) {    
+            if (!this.props.stoplist.has(datum.word)) {    
                 return (
-                    <Button
-                        bsSize="xsmall"
-                        bsStyle="success"
-                        onClick={addStopword(datum.word).bind(this)}
-                    >
-                        {datum.word}
-                    </Button>
+                    <span>
+                        <Label
+                            bsSize="xsmall"
+                            bsStyle="success"
+                            onClick={addStopword(datum.word).bind(this)}
+                        >
+                            {datum.word}: {datum.count}
+                        </Label>{' '}
+                    </span>
                 );
             }
         }.bind(this));  
@@ -31,26 +34,27 @@ class AdaptiveStopwords extends Component {
                 this.props.removeStopword(word);
             };
         }
+        var stoplist = Array.from(this.props.stoplist);
 
-        return this.props.wordData.map(function (datum) {
-            if (this.props.stopwords.has(datum.word)) {    
-                return (
-                    <Button
+        return stoplist.map(function (word) {    
+            return (
+                <span>
+                    <Label
                         bsSize="xsmall"
-                        bsStyle="success"
-                        onClick={removeStopword(datum.word).bind(this)}
+                        bsStyle="danger"
+                        onClick={removeStopword(word).bind(this)}
                     >
-                        {datum.word}
-                    </Button>
-                );
-            }
+                        {word}
+                    </Label>{" "}
+                </span>
+            );
         }.bind(this));
     }
 
     render() {
         this.renderStoppedButtonList = this.renderStoppedButtonList.bind(this);
         this.renderUnstoppedButtonList = this.renderUnstoppedButtonList.bind(this);
-        
+
         return (
             <div>
                 <h3>Current Vocabulary</h3>

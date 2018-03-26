@@ -1,110 +1,111 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Jumbotron, Panel } from 'react-bootstrap';
-import { en } from 'stopword';
+import Tokenizer from 'tokenize-text';
 
-import Preprocessing from './Preprocessing.js';
-import TextProcessor from './TextProcessor.js';
-import WordComparer from './WordComparer.js';
-import WordCounter from './WordCounter.js';
+import AdaptiveStopwords from './AdaptiveStopwords.js';
+import TextBox from './TextBox.js';
+import WordCounterChart from './WordCounterChart.js';
 
 class BasicApp extends Component {
 
-  constructor(props) {
-    super(props);
-    this.modifyStemmer = this.modifyStemmer.bind(this);
-    this.modifyStoplist = this.modifyStoplist.bind(this);
-    this.handleText = this.handleText.bind(this);
-    this.handleFirstData = this.handleFirstData.bind(this);
-    this.handleSecondData = this.handleSecondData.bind(this);
-    this.state = {
-      data1: [],
-      data2: [],
-      codeDict: new Map(),
-      stoplist: en,
-      stemmer: "none"
-    };
-  }
-
-  modifyStoplist(newList) {
-    this.setState({ stoplist: newList });
-  }
-
-  modifyStemmer(newStemmer) {
-    if (newStemmer !== this.state.stemmer) {
-      this.setState({ stemmer: newStemmer });
+    constructor(props) {
+        super(props);
+        this.tokenizer = new Tokenizer();
+        this.addStopword = this.addStopword.bind(this);
+        this.removeStopword = this.removeStopword.bind(this);
+        this.processText = this.processText.bind(this);
+        this.computeWordData = this.computeWordData.bind(this);
+        this.state = {
+            stoplist: new Set(),
+            rawText: '',
+            wordData: []
+        };
     }
-  }
 
-  handleText(codeDict) {
-    this.setState({
-      codeDict: codeDict
-    });
-  }
+    addStopword(word) {
+        var stoplist = this.state.stoplist;
+        stoplist.add(word);
+        var wordData = this.computeWordData(this.state.rawText, stoplist)
+        this.setState({ stoplist: stoplist, wordData: wordData });
+    }
 
-  handleFirstData(dataSet, code) {
-    this.setState({
-      data1: dataSet,
-      code1: code
-    });
-  }
 
-  handleSecondData(dataSet, code) {
-    this.setState({
-      data2: dataSet,
-      code2: code
-    });
-  }
+    removeStopword(word) {
+        var stoplist = this.state.stoplist;
+        stoplist.delete(word);
+        var wordData = this.computeWordData(this.state.rawText, stoplist)
+        this.setState({ stoplist: stoplist, wordData: wordData });
+
+    }
+
+    processText(rawText) {
+        var wordData = this.computeWordData(rawText, this.state.stoplist);
+        this.setState({ rawText: rawText, wordData: wordData });
+    }
+
+    computeWordData(rawText, stoplist) {
+        // Data structures to count instances of each token
+        var vocabCounts = {};
+        var tokenList = this.tokenizer.words()(rawText);
+        
+        // Count tokens
+        tokenList.forEach(function (rawToken) {
+            var token = rawToken.value;
+            if (!(stoplist.has(token))) {
+                if (vocabCounts.hasOwnProperty(token)) {
+                    vocabCounts[token]++;
+                } else {
+                    vocabCounts[token] = 1;
+                }
+            }
+        });
+
+        // Turn the count dictionary into a sorted list of entities by decreasing count
+        var wordData = []
+        for (var type in vocabCounts) {
+            wordData.push({ 'word': type, 'count': vocabCounts[type] });
+        }
+        wordData.sort(function(d1, d2) {
+            return d2.count - d1.count;
+        });
+        for (var i = 0; i < wordData.length; ++i) {
+            wordData[i]['idx'] = i;
+        }
+
+        // Set the word data
+        return wordData; 
+    }
 
   render() {
-    var color1 = "#fdb462";
-    var color2 = "#b3de69";
+    var color = "#fdb462";
     return (
       <div className="App">
         <Jumbotron>
           <h1>Word Histograms for Grounded Codes</h1>
-          <p className="lead">Input text into the boxes below to view and compare word frequencies between two collections of passages.</p>
-          <Preprocessing
-            stoplist={this.state.stoplist}
-            modifyStoplist={this.modifyStoplist}
-            stemmer={this.state.stemmer}
-            modifyStemmer={this.modifyStemmer}
-          />
+          <p className="lead">Input text into the box below to view word frequency information for your text.</p>
         </Jumbotron>
         <Panel><Panel.Body>
-          <div className="col-xs-12 col-sm-6 col-sm-offset-3">
-            <TextProcessor handleText={this.handleText} />
+          <div className="col-xs-12 col-sm-6">
+            <TextBox
+                processText={this.processText}
+                rawText={this.state.rawText}
+            />
+          </div>
+          <div className="col-xs-12 col-sm-6">
+            <AdaptiveStopwords
+                addStopword={this.addStopword}
+                removeStopword={this.removeStopword}
+                wordData={this.state.wordData}
+                stoplist={this.state.stoplist}
+            />
           </div>
         </Panel.Body></Panel>
         <Panel><Panel.Body>
-          <WordCounter 
-            sectionName={"Text with Code A"}
-            useCaps={false}
-            stoplist={this.state.stoplist}
-            stemmer={this.state.stemmer}
-            handleData={this.handleFirstData}
-            color={color1}
-            codeDict={this.state.codeDict}
-          />
-          <WordCounter 
-            sectionName={"Text with Code B"}
-            useCaps={false}
-            stoplist={this.state.stoplist}
-            stemmer={this.state.stemmer}
-            handleData={this.handleSecondData}
-            color={color2}
-            codeDict={this.state.codeDict}
-          />
-        </Panel.Body></Panel>
-        <Panel><Panel.Body>
-          <WordComparer
-            data1={this.state.data1}
-            data2={this.state.data2}
-            code1={this.state.code1}
-            code2={this.state.code2}
-            color1={color1}
-            color2={color2}
-          />
+            <WordCounterChart
+                color={color}
+                wordData={this.state.wordData}
+            />
         </Panel.Body></Panel>
       </div>
     );
