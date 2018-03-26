@@ -18,6 +18,7 @@ class AdaptiveStopwords extends Component {
                         <Label
                             bsSize="xsmall"
                             bsStyle="success"
+                            key={datum.word + '-unstopped'}
                             onClick={addStopword(datum.word).bind(this)}
                         >
                             {datum.word}: {datum.count}
@@ -42,6 +43,7 @@ class AdaptiveStopwords extends Component {
                     <Label
                         bsSize="xsmall"
                         bsStyle="danger"
+                        key={word + '-stopped'}
                         onClick={removeStopword(word).bind(this)}
                     >
                         {word}
@@ -58,10 +60,14 @@ class AdaptiveStopwords extends Component {
         return (
             <div>
                 <h3>Current Vocabulary</h3>
-                {this.renderUnstoppedButtonList()}
+                <div className="scrollable">
+                    {this.renderUnstoppedButtonList()}
+                </div>
                 <br/>
                 <h3>Ignored Words</h3>
-                {this.renderStoppedButtonList()}
+                <div className="scrollable">
+                    {this.renderStoppedButtonList()}
+                </div>
             </div>
         );
     }

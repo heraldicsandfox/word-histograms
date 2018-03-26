@@ -15,7 +15,7 @@ class TextBox extends Component {
         return (
             <FormControl
                 componentClass="textarea"
-                rows={12}
+                rows={20}
                 value={this.props.rawText}
                 onChange={this.handleTextChange}
             />

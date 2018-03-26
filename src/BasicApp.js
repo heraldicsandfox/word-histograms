@@ -47,7 +47,7 @@ class BasicApp extends Component {
     computeWordData(rawText, stoplist) {
         // Data structures to count instances of each token
         var vocabCounts = {};
-        var tokenList = this.tokenizer.words()(rawText);
+        var tokenList = this.tokenizer.words()(rawText.toLowerCase());
         
         // Count tokens
         tokenList.forEach(function (rawToken) {

@@ -27,9 +27,9 @@
   to { transform: rotate(360deg); }
 }
 
-/* https://stackoverflow.com/questions/5119711/whats-the-easiest-way-to-put-space-between-2-side-by-side-buttons-in-asp-net */
-.divider{
-  width:5px;
-  height:auto;
-  display:inline-block;
+.scrollable {
+  height: 150px;
+  width: auto;
+  padding: 15px;
+  overflow: auto;
 }
