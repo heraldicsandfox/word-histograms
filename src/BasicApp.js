@@ -102,10 +102,12 @@ class BasicApp extends Component {
           </div>
         </Panel.Body></Panel>
         <Panel><Panel.Body>
-            <WordCounterChart
-                color={color}
-                wordData={this.state.wordData}
-            />
+            <div className="col-xs-12 col-sm-6 col-sm-offset-3">
+                <WordCounterChart
+                    color={color}
+                    wordData={this.state.wordData}
+                />
+            </div>
         </Panel.Body></Panel>
       </div>
     );
