@@ -44,7 +44,6 @@ class TextProcessor extends Component {
             allText = allText + '\n' + newText;
         }
         newCodeDict.set("", allText);
-        console.log(newCodeDict);
         this.props.handleText(newCodeDict);
         this.setState({ codeDict: newCodeDict, textInput: textInput });
     }

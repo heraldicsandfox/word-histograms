@@ -14,11 +14,10 @@ class AdaptiveStopwords extends Component {
         return this.props.wordData.map(function (datum) {
             if (!this.props.stoplist.has(datum.word)) {    
                 return (
-                    <span>
+                    <span key={datum.word + '_span_unstopped'}>
                         <Label
-                            bsSize="xsmall"
                             bsStyle="success"
-                            key={datum.word + '-unstopped'}
+                            key={datum.word + '_unstopped'}
                             onClick={addStopword(datum.word).bind(this)}
                         >
                             {datum.word}: {datum.count}
@@ -39,11 +38,11 @@ class AdaptiveStopwords extends Component {
 
         return stoplist.map(function (word) {    
             return (
-                <span>
+                <span key={word + '_span_stopped'}>
                     <Label
-                        bsSize="xsmall"
+                        bsSize="small"
                         bsStyle="danger"
-                        key={word + '-stopped'}
+                        key={word + '_stopped'}
                         onClick={removeStopword(word).bind(this)}
                     >
                         {word}
